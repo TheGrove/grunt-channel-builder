@@ -22,26 +22,39 @@ var grunt = require('grunt');
     test.ifError(value)
 */
 
+function getNormalizedFile(filepath) {
+  return grunt.file.readJSON(filepath);
+}
+
 exports.channel_builder = {
   setUp: function(done) {
     // setup here if necessary
     done();
   },
-  default_options: function(test) {
+  ireland: function(test) {
     test.expect(1);
 
-    var actual = grunt.file.read('tmp/default_options');
-    var expected = grunt.file.read('test/expected/default_options');
-    test.equal(actual, expected, 'should describe what the default behavior is.');
+    var actual = grunt.config.get('channel_builder.out.ireland');
+    var expected = getNormalizedFile('test/expected/ireland.json');
+    test.deepEqual(actual, expected, 'should describe what the default behavior is.');
 
     test.done();
   },
-  custom_options: function(test) {
+  brazil: function(test) {
     test.expect(1);
 
-    var actual = grunt.file.read('tmp/custom_options');
-    var expected = grunt.file.read('test/expected/custom_options');
-    test.equal(actual, expected, 'should describe what the custom option(s) behavior is.');
+    var actual = grunt.config.get('channel_builder.out.brazil');
+    var expected = getNormalizedFile('test/expected/brazil.json');
+    test.deepEqual(actual, expected, 'should describe what the custom option(s) behavior is.');
+
+    test.done();
+  },
+  acme: function(test) {
+    test.expect(1);
+
+    var actual = grunt.config.get('channel_builder.out.acme');
+    var expected = getNormalizedFile('test/expected/acme.json');
+    test.deepEqual(actual, expected, 'should describe what the custom option(s) behavior is.');
 
     test.done();
   },

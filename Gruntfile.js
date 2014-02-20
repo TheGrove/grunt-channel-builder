@@ -30,22 +30,23 @@ module.exports = function(grunt) {
 
     // Configuration to be run (and then tested).
     channel_builder: {
-      default_options: {
-        options: {
-        },
-        files: {
-          'tmp/default_options': ['test/fixtures/testing', 'test/fixtures/123'],
-        },
+      options: {
+        src: 'test/fixtures',
+        filePatterns : {
+            js: ['*.js','!*.spec.js'],
+            less: '*.less',
+            tpl: '*.tpl.html'
+        }
       },
-      custom_options: {
-        options: {
-          separator: ': ',
-          punctuation: ' !!!',
-        },
-        files: {
-          'tmp/custom_options': ['test/fixtures/testing', 'test/fixtures/123'],
-        },
+      ireland: {
+        folderNamePattern: 'ie',
       },
+      brazil: {
+        folderNamePattern: 'br',
+      },
+      acme: {
+        folderNamePattern: 'acm',
+      }
     },
 
     // Unit tests.
@@ -69,5 +70,9 @@ module.exports = function(grunt) {
 
   // By default, lint and run all tests.
   grunt.registerTask('default', ['jshint', 'test']);
+
+  grunt.registerTask('config-check','',function(){
+      grunt.log.writeln(' channel_builder ' + JSON.stringify(grunt.config.get('channel_builder'),null,'\t'));
+  });
 
 };

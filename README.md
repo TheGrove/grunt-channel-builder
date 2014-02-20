@@ -1,6 +1,6 @@
 # grunt-channel-builder
 
-> Grunt plugin for outputting multiple applications by channel based on shared and unshared code residing in the same repository.
+> Grunt plugin for creating multiple applications by channel based on shared and unshared code residing in the same repository. Developed to work with [ngbp](https://github.com/ngbp/ngbp) but allow the ability to have targetted custom output builds per client/region.
 
 ## Getting Started
 This plugin requires Grunt `~0.4.2`
@@ -26,60 +26,150 @@ In your project's Gruntfile, add a section named `channel_builder` to the data o
 grunt.initConfig({
   channel_builder: {
     options: {
-      // Task-specific options go here.
+      src: '',
+      filePatterns: {
+          js: '',
+          less: '',
+          tpl: ''
+      }
     },
     your_target: {
-      // Target-specific file lists and/or options go here.
-    },
-  },
+      folderNamePattern: ''
+    }
+  }
 });
 ```
 
 ### Options
 
-#### options.separator
+#### options.src
 Type: `String`
-Default value: `',  '`
+Default value: `src`
 
 A string value that is used to do something with whatever.
 
-#### options.punctuation
-Type: `String`
-Default value: `'.'`
+#### options.filePatterns
+Type: `Object`
 
-A string value that is used to do something else with whatever else.
+An object of the file patterns that will be collected for each channel. Each file type can be a string glob match pattern or an array of them.
+
+#### channel.folderNamePattern
+Type: `String`
+
+Each channel has a folder name pattern that will include or exclude files that match the file pattern if that file is in either a subfolder that has the pattern in the folder name or a common file that belongs to all channels.
 
 ### Usage Examples
 
-#### Default Options
-In this example, the default options are used to do something with whatever. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result would be `Testing, 1 2 3.`
+#### Setup
+Create any number of channels and give each one of them a folder name pattern. Keep your code structure how ever you want and by placing the file in a subfolder that has the channel's folder name pattern anywhere in the name (but seperated by a non-word character) it will be automatically added to the channel_builder config object ready to be fed into the grunt-contrib-concat task.
 
 ```js
-grunt.initConfig({
-  channel_builder: {
-    options: {},
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
-    },
+channel_builder: {
+  options: {
+    src: 'src',
+    filePatterns : {
+        js: ['*.js','!*.spec.js'],
+        less: '*.less',
+        tpl: '*.tpl.html'
+    }
   },
-});
+  ireland: {
+    folderNamePattern: 'ie',
+  },
+  brazil: {
+    folderNamePattern: 'br',
+  },
+  acme: {
+    folderNamePattern: 'acm',
+  }
+};
 ```
 
-#### Custom Options
-In this example, custom options are used to do something else with whatever else. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result in this case would be `Testing: 1 2 3 !!!`
+#### Result
+In this example, excecuting the task channel_builder adds an out property that can be called using grunt templates feeding into the concat task.
 
-```js
-grunt.initConfig({
-  channel_builder: {
-    options: {
-      separator: ': ',
-      punctuation: ' !!!',
-    },
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
-    },
+```json
+{
+  "options": {
+    "src": "test/fixtures",
+    "filePatterns": {
+      "js": [
+        "*.js",
+        "!*.spec.js"
+      ],
+      "less": "*.less",
+      "tpl": "*.tpl.html"
+    }
   },
-});
+  "ireland": {
+    "folderNamePattern": "ie"
+  },
+  "brazil": {
+    "folderNamePattern": "br"
+  },
+  "acme": {
+    "folderNamePattern": "acm"
+  },
+  "out": {
+    "ireland": {
+      "js": [
+        "test/fixtures/coolness/br-ie/briecoolnessfile.js",
+        "test/fixtures/coolness/coolnessfile.js",
+        "test/fixtures/ie/iemainfeature.js",
+        "test/fixtures/mainfeature1.js",
+        "test/fixtures/mainfeature2.js",
+        "test/fixtures/wonder/wonderfile.js"
+      ],
+      "less": [
+        "test/fixtures/coolness/br-ie/briecollnessfile.less",
+        "test/fixtures/ie/iemainfeature.less",
+        "test/fixtures/mainfeature1.less"
+      ],
+      "tpl": [
+        "test/fixtures/coolness/coolnessfile.tpl.html",
+        "test/fixtures/ie/iemainfeature.tpl.html",
+        "test/fixtures/mainfeature1.tpl.html",
+        "test/fixtures/mainfeature2.tpl.html"
+      ]
+    },
+    "brazil": {
+      "js": [
+        "test/fixtures/coolness/br-ie/briecoolnessfile.js",
+        "test/fixtures/coolness/coolnessfile.js",
+        "test/fixtures/mainfeature1.js",
+        "test/fixtures/mainfeature2.js",
+        "test/fixtures/wonder/acm br/acmbrwonderfile.js",
+        "test/fixtures/wonder/wonderfile.js"
+      ],
+      "less": [
+        "test/fixtures/coolness/br-ie/briecollnessfile.less",
+        "test/fixtures/mainfeature1.less"
+      ],
+      "tpl": [
+        "test/fixtures/coolness/coolnessfile.tpl.html",
+        "test/fixtures/mainfeature1.tpl.html",
+        "test/fixtures/mainfeature2.tpl.html"
+      ]
+    },
+    "acme": {
+      "js": [
+        "test/fixtures/coolness/coolnessfile.js",
+        "test/fixtures/mainfeature1.js",
+        "test/fixtures/mainfeature2.js",
+        "test/fixtures/wonder/acm br/acmbrwonderfile.js",
+        "test/fixtures/wonder/wonderfile.js"
+      ],
+      "less": [
+        "test/fixtures/mainfeature1.less"
+      ],
+      "tpl": [
+        "test/fixtures/coolness/coolnessfile.tpl.html",
+        "test/fixtures/mainfeature1.tpl.html",
+        "test/fixtures/mainfeature2.tpl.html"
+      ]
+    }
+  }
+}
 ```
 
 ## Contributing
