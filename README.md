@@ -171,6 +171,7 @@ In this example, excecuting the task channel_builder adds an out property that c
   }
 }
 ```
+So following the above example, you can use channel_builder.out.acme.js to get a list of javascript files that are specific to the acme channel.
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
