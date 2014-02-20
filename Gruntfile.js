@@ -10,6 +10,9 @@
 
 module.exports = function(grunt) {
 
+  // These plugins provide necessary tasks.
+  require('load-grunt-tasks')(grunt);
+
   // Project configuration.
   grunt.initConfig({
     jshint: {
@@ -46,7 +49,28 @@ module.exports = function(grunt) {
       },
       acme: {
         folderNamePattern: 'acm',
+      },
+      'default': {
+        //put nothing in here
       }
+    },
+    bump: {
+        options: {
+            files: [
+                "package.json",
+                "bower.json"
+            ],
+            commit: false,
+            commitMessage: 'chore(release): v%VERSION%',
+            commitFiles: [
+                "package.json",
+            ],
+            createTag: false,
+            tagName: 'v%VERSION%',
+            tagMessage: 'Version %VERSION%',
+            push: false,
+            pushTo: 'origin'
+        }
     },
 
     // Unit tests.
@@ -59,10 +83,7 @@ module.exports = function(grunt) {
   // Actually load this plugin's task(s).
   grunt.loadTasks('tasks');
 
-  // These plugins provide necessary tasks.
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-nodeunit');
+  
 
   // Whenever the "test" task is run, first clean the "tmp" dir, then run this
   // plugin's task(s), then test the result.
