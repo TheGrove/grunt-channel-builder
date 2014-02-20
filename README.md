@@ -89,7 +89,7 @@ channel_builder: {
 In this example, excecuting the task channel_builder adds an out property that can be called using grunt templates feeding into the concat task.
 
 ```json
-{
+channel_builder: {
   "options": {
     "src": "test/fixtures",
     "filePatterns": {
