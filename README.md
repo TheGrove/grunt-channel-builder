@@ -46,7 +46,7 @@ grunt.initConfig({
 Type: `String`
 Default value: `src`
 
-A string value that is used to do something with whatever.
+A string value that represents the folder where the recursive search will start from.
 
 #### options.filePatterns
 Type: `Object`
