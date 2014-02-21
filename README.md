@@ -27,6 +27,7 @@ grunt.initConfig({
   channel_builder: {
     options: {
       src: '',
+      defaultChannelName: '',
       filePatterns: {
           js: '',
           less: '',
@@ -42,11 +43,19 @@ grunt.initConfig({
 
 ### Options
 
+Options are recursive so custom options can be placed on any specific channel.
+
 #### options.src
 Type: `String`
 Default value: `src`
 
 A string value that represents the folder where the recursive search will start from.
+
+#### options.defaultChannelName
+Type: `String`
+Default value: `default`
+
+A string value that represents the name of the channel that does not have a folder name pattern and only has files that match none of the channels.
 
 #### options.filePatterns
 Type: `Object`
@@ -56,7 +65,7 @@ An object of the file patterns that will be collected for each channel. Each fil
 #### channel.folderNamePattern
 Type: `String`
 
-Each channel has a folder name pattern that will include or exclude files that match the file pattern if that file is in either a subfolder that has the pattern in the folder name or a common file that belongs to all channels.
+Each channel has a folder name pattern that will include or exclude files that match the file pattern if that file is in either a subfolder that has the pattern in the folder name or a common file that belongs to all channels. The only exception is the 'default pattern'
 
 ### Usage Examples
 
@@ -188,7 +197,7 @@ channel_builder {
   }
 }
 ```
-So following the above example, you can use the template '<%= channel_builder.out.acme.js %>'' to get a list of javascript files that are specific to the acme channel that you can feed into your other processes.
+So following the above example, you can use the template `<%= channel_builder.out.acme.js %>` to get a list of javascript files that are specific to the acme channel that you can feed into your other processes.
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).

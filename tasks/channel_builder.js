@@ -19,6 +19,7 @@ module.exports = function(grunt) {
     // Merge task-specific and/or target-specific options with these defaults.
     var options = this.options({
       src: 'src',
+      defaultChannelName: 'default',
       filePatterns : {
             js: ['*.js','!*.spec.js'],
             less: '*.less',
@@ -33,12 +34,12 @@ module.exports = function(grunt) {
         }
     });
 
-    if(_.isUndefined(this.data.folderNamePattern) && this.target !== 'default'){
+    if(_.isUndefined(this.data.folderNamePattern) && this.target !== options.defaultChannelName){
         grunt.log.error('Missing folderNamePattern for ' + this.target);
         return false;
     }
 
-    if(this.target === 'default' && !_.isUndefined(this.data.folderNamePattern)){
+    if(this.target === options.defaultChannelName && !_.isUndefined(this.data.folderNamePattern)){
         grunt.log.error('Invalid folderNamePattern for default channel, default should not have a pattern');
         return false;
     }
@@ -178,7 +179,7 @@ module.exports = function(grunt) {
                 grunt.verbose.writeln(['subdir',subdir]);
                 grunt.verbose.writeln(['filename',filename]);
 
-                meMatch = target !== 'default' ? matchesTarget(subdir) : false;
+                meMatch = target !== options.defaultChannelName ? matchesTarget(subdir) : false;
                 otherMatch = matchesOthers(subdir);
                 if(meMatch){
                     cleanAndProtectAgainstCommon(pattern, abspath, rootdir, subdir, filename);
