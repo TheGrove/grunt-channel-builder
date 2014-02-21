@@ -59,6 +59,11 @@ A string value that represents the name of the channel that does not have a fold
 
 #### options.filePatterns
 Type: `Object`
+Default value: `{
+        js: ['*.js','!*.spec.js'],
+        less: '*.less',
+        tpl: '*.tpl.html'
+    }`
 
 An object of the file patterns that will be collected for each channel. Each file type can be a string glob match pattern or an array of them.
 
