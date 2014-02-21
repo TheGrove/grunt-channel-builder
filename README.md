@@ -74,13 +74,16 @@ channel_builder: {
     }
   },
   ireland: {
-    folderNamePattern: 'ie',
+      folderNamePattern: 'ie',
   },
   brazil: {
-    folderNamePattern: 'br',
+      folderNamePattern: 'br',
   },
   acme: {
-    folderNamePattern: 'acm',
+      folderNamePattern: 'acm',
+  },
+  default: {
+      // put nothing in here
   }
 };
 ```
@@ -88,8 +91,8 @@ channel_builder: {
 #### Result
 In this example, excecuting the task channel_builder adds an out property that can be called using grunt templates feeding into the concat task.
 
-```json
-channel_builder: {
+```js
+channel_builder {
   "options": {
     "src": "test/fixtures",
     "filePatterns": {
@@ -110,39 +113,36 @@ channel_builder: {
   "acme": {
     "folderNamePattern": "acm"
   },
+  "default": {},
   "out": {
     "ireland": {
       "js": [
-        "test/fixtures/coolness/br-ie/briecoolnessfile.js",
-        "test/fixtures/coolness/coolnessfile.js",
-        "test/fixtures/ie/iemainfeature.js",
-        "test/fixtures/mainfeature1.js",
+        "test/fixtures/coolness/br-ie/coolnessfile.js",
+        "test/fixtures/ie/mainfeature1.js",
         "test/fixtures/mainfeature2.js",
+        "test/fixtures/wonder/awesome/ie/awesome.js",
         "test/fixtures/wonder/wonderfile.js"
       ],
       "less": [
-        "test/fixtures/coolness/br-ie/briecollnessfile.less",
-        "test/fixtures/ie/iemainfeature.less",
-        "test/fixtures/mainfeature1.less"
+        "test/fixtures/coolness/br-ie/coolnessfile.less",
+        "test/fixtures/ie/mainfeature1.less"
       ],
       "tpl": [
         "test/fixtures/coolness/coolnessfile.tpl.html",
-        "test/fixtures/ie/iemainfeature.tpl.html",
-        "test/fixtures/mainfeature1.tpl.html",
+        "test/fixtures/ie/mainfeature1.tpl.html",
         "test/fixtures/mainfeature2.tpl.html"
       ]
     },
     "brazil": {
       "js": [
-        "test/fixtures/coolness/br-ie/briecoolnessfile.js",
-        "test/fixtures/coolness/coolnessfile.js",
+        "test/fixtures/coolness/br-ie/coolnessfile.js",
         "test/fixtures/mainfeature1.js",
         "test/fixtures/mainfeature2.js",
-        "test/fixtures/wonder/acm br/acmbrwonderfile.js",
-        "test/fixtures/wonder/wonderfile.js"
+        "test/fixtures/wonder/acm br/wonderfile.js",
+        "test/fixtures/wonder/awesome/awesome.js"
       ],
       "less": [
-        "test/fixtures/coolness/br-ie/briecollnessfile.less",
+        "test/fixtures/coolness/br-ie/coolnessfile.less",
         "test/fixtures/mainfeature1.less"
       ],
       "tpl": [
@@ -156,7 +156,24 @@ channel_builder: {
         "test/fixtures/coolness/coolnessfile.js",
         "test/fixtures/mainfeature1.js",
         "test/fixtures/mainfeature2.js",
-        "test/fixtures/wonder/acm br/acmbrwonderfile.js",
+        "test/fixtures/wonder/acm br/wonderfile.js",
+        "test/fixtures/wonder/awesome/awesome.js"
+      ],
+      "less": [
+        "test/fixtures/mainfeature1.less"
+      ],
+      "tpl": [
+        "test/fixtures/coolness/coolnessfile.tpl.html",
+        "test/fixtures/mainfeature1.tpl.html",
+        "test/fixtures/mainfeature2.tpl.html"
+      ]
+    },
+    "default": {
+      "js": [
+        "test/fixtures/coolness/coolnessfile.js",
+        "test/fixtures/mainfeature1.js",
+        "test/fixtures/mainfeature2.js",
+        "test/fixtures/wonder/awesome/awesome.js",
         "test/fixtures/wonder/wonderfile.js"
       ],
       "less": [
@@ -171,10 +188,7 @@ channel_builder: {
   }
 }
 ```
-So following the above example, you can use channel_builder.out.acme.js to get a list of javascript files that are specific to the acme channel.
+So following the above example, you can use the template '<%= channel_builder.out.acme.js %>'' to get a list of javascript files that are specific to the acme channel that you can feed into your other processes.
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
-
-## Release History
-_(Nothing yet)_

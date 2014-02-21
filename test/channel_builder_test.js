@@ -36,7 +36,7 @@ exports.channel_builder = {
 
     var actual = grunt.config.get('channel_builder.out.ireland');
     var expected = getNormalizedFile('test/expected/ireland.json');
-    test.deepEqual(actual, expected, 'should describe what the default behavior is.');
+    test.deepEqual(actual, expected, 'should describe what the finished config object is for the ireland channel');
 
     test.done();
   },
@@ -45,7 +45,7 @@ exports.channel_builder = {
 
     var actual = grunt.config.get('channel_builder.out.brazil');
     var expected = getNormalizedFile('test/expected/brazil.json');
-    test.deepEqual(actual, expected, 'should describe what the custom option(s) behavior is.');
+    test.deepEqual(actual, expected, 'should describe what the finished config object is for the brazil channel');
 
     test.done();
   },
@@ -54,7 +54,16 @@ exports.channel_builder = {
 
     var actual = grunt.config.get('channel_builder.out.acme');
     var expected = getNormalizedFile('test/expected/acme.json');
-    test.deepEqual(actual, expected, 'should describe what the custom option(s) behavior is.');
+    test.deepEqual(actual, expected, 'should describe what the finished config object is for the acme channel');
+
+    test.done();
+  },
+  default: function(test) {
+    test.expect(1);
+
+    var actual = grunt.config.get('channel_builder.out.default');
+    var expected = getNormalizedFile('test/expected/default.json');
+    test.deepEqual(actual, expected, 'should describe what the finished config object is for the default channel');
 
     test.done();
   },

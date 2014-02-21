@@ -57,8 +57,7 @@ module.exports = function(grunt) {
     bump: {
         options: {
             files: [
-                "package.json",
-                "bower.json"
+                "package.json"
             ],
             commit: false,
             commitMessage: 'chore(release): v%VERSION%',
@@ -91,6 +90,8 @@ module.exports = function(grunt) {
 
   // By default, lint and run all tests.
   grunt.registerTask('default', ['jshint', 'test']);
+
+  grunt.registerTask('run', ['jshint', 'channel_builder', 'config-check']);
 
   grunt.registerTask('config-check','',function(){
       grunt.log.writeln(' channel_builder ' + JSON.stringify(grunt.config.get('channel_builder'),null,'\t'));
