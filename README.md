@@ -70,7 +70,7 @@ An object of the file patterns that will be collected for each channel. Each fil
 #### channel.folderNamePattern
 Type: `String`
 
-Each channel has a folder name pattern that will include or exclude files that match the file pattern if that file is in either a subfolder that has the pattern in the folder name or a common file that belongs to all channels. The only exception is the 'default pattern'
+Each channel has a folder name pattern that will include or exclude files that match the file pattern if that file is in either a subfolder that has the pattern in the folder name or a common file that belongs to all channels. The only exception is the 'default' channel which will list files that don't match any other channel.
 
 ### Usage Examples
 
