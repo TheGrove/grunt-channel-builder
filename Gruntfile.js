@@ -54,6 +54,11 @@ module.exports = function(grunt) {
         //put nothing in here
       }
     },
+    changelog: {
+        options: {
+            editor: 'subl -w'
+        }
+    },
     bump: {
         options: {
             files: [
