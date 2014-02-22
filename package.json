@@ -1,7 +1,7 @@
 {
   "name": "grunt-channel-builder",
   "description": "Grunt plugin for outputting multiple applications by channel based on shared and unshared code residing in the same repository.",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "homepage": "https://github.com/TheGrove/grunt-channel-builder",
   "author": {
     "name": "Chris Gruel",
