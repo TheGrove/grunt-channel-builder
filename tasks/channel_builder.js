@@ -18,12 +18,11 @@ module.exports = function(grunt) {
   grunt.registerMultiTask('channel_builder', 'Grunt plugin for outputting multiple applications by channel based on shared and unshared code residing in the same repository.', function() {
     // Merge task-specific and/or target-specific options with these defaults.
     var options = this.options({
-      src: 'src',
       defaultChannelName: 'default',
       filePatterns : {
-            js: ['*.js','!*.spec.js'],
-            less: '*.less',
-            tpl: '*.tpl.html'
+            js: ['src/**/*.js','!src/**/*.spec.js'],
+            less: 'src/**/*.less',
+            tpl: 'src/**/*.tpl.html'
       }
     });
 
@@ -41,11 +40,6 @@ module.exports = function(grunt) {
 
     if(this.target === options.defaultChannelName && !_.isUndefined(this.data.folderNamePattern)){
         grunt.log.error('Invalid folderNamePattern for default channel, default should not have a pattern');
-        return false;
-    }
-
-    if(!_.isString(options.src)){
-        grunt.log.error('Src can only be a string value for ' + this.target);
         return false;
     }
 
