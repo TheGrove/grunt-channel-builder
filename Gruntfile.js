@@ -34,11 +34,10 @@ module.exports = function(grunt) {
     // Configuration to be run (and then tested).
     channel_builder: {
       options: {
-        src: 'test/fixtures',
         filePatterns : {
-            js: ['*.js','!*.spec.js'],
-            less: '*.less',
-            tpl: '*.tpl.html'
+            js: ['test/fixtures/**/*.js','!test/fixtures/**/*.spec.js'],
+            less: 'test/fixtures/**/*.less',
+            tpl: 'test/fixtures/**/*.tpl.html'
         }
       },
       ireland: {

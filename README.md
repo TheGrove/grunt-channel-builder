@@ -26,7 +26,6 @@ In your project's Gruntfile, add a section named `channel_builder` to the data o
 grunt.initConfig({
   channel_builder: {
     options: {
-      src: '',
       defaultChannelName: '',
       filePatterns: {
           js: '',
@@ -44,12 +43,6 @@ grunt.initConfig({
 ### Options
 
 Options are recursive so custom options can be placed on any specific channel.
-
-#### options.src
-Type: `String`
-Default value: `src`
-
-A string value that represents the folder where the recursive search will start from.
 
 #### options.defaultChannelName
 Type: `String`
@@ -80,11 +73,10 @@ Create any number of channels and give each one of them a folder name pattern. K
 ```js
 channel_builder: {
   options: {
-    src: 'src',
     filePatterns : {
-        js: ['*.js','!*.spec.js'],
-        less: '*.less',
-        tpl: '*.tpl.html'
+        js: ['test/fixtures/**/*.js','!test/fixtures/**/*.spec.js'],
+        less: 'test/fixtures/**/*.less',
+        tpl: 'test/fixtures/**/*.tpl.html'
     }
   },
   ireland: {
@@ -108,14 +100,13 @@ In this example, excecuting the task channel_builder adds an out property that c
 ```js
 channel_builder {
   "options": {
-    "src": "test/fixtures",
     "filePatterns": {
       "js": [
-        "*.js",
-        "!*.spec.js"
+        "test/fixtures/**/*.js",
+        "!test/fixtures/**/*.spec.js"
       ],
-      "less": "*.less",
-      "tpl": "*.tpl.html"
+      "less": "test/fixtures/**/*.less",
+      "tpl": "test/fixtures/**/*.tpl.html"
     }
   },
   "ireland": {

@@ -62,9 +62,13 @@ module.exports = function(grunt) {
         otherMatch,
         target = this.target,
         data = this.data,
-        NO_INDEX_FOUND = -1;
+        NO_INDEX_FOUND = -1,
+        fileList,
+        fileParts,
+        subdir,
+        filename,
+        mainConfig = grunt.config('channel_builder');
 
-    var mainConfig = grunt.config('channel_builder');
 
     grunt.verbose.subhead('Channel Builder Config');
     grunt.verbose.writeln(JSON.stringify(mainConfig,null,'\t'));
@@ -128,11 +132,9 @@ module.exports = function(grunt) {
         }
     };
 
-    var cleanAndProtectAgainstCommon = function(pattern, abspath, rootdir, subdir, filename){
-        var subdirPathArray = _(subdir.split(path.sep)).initial().value();
-        subdirPathArray.unshift(rootdir);
-        subdirPathArray.push(filename);
-        var commonFilePathPattern = path.join.apply(null,subdirPathArray);
+    var cleanAndProtectAgainstCommon = function(pattern, abspath, subdir, filename){
+        
+        var commonFilePathPattern = abspath.replace(path.sep + subdir,'');
         // Remove the common file if we happen to already have it
         pattern.list = _.filter(pattern.list,function(pattern){
             return pattern !== commonFilePathPattern;
@@ -167,33 +169,37 @@ module.exports = function(grunt) {
     grunt.verbose.subhead('Other Channel Patterns');
     grunt.verbose.writeln(JSON.stringify(otherChannelPatterns,null,'\t'));
 
-    grunt.file.recurse(options.src, function callback(abspath, rootdir, subdir, filename) {
 
-        _.forEach(patterns, function(pattern){
-            //grunt.verbose.writeln("Individual patterns : " + JSON.stringify(patterns,null,'\t'));
-            if(grunt.file.isMatch(pattern.patternArray, filename)){
+    _.forEach(patterns, function(pattern){
 
-                grunt.verbose.subhead('New File');
-                grunt.verbose.writeln(['abspath',abspath]);
-                grunt.verbose.writeln(['rootdir',rootdir]);
-                grunt.verbose.writeln(['subdir',subdir]);
-                grunt.verbose.writeln(['filename',filename]);
+        fileList = grunt.file.expand(pattern.patternArray);
 
-                meMatch = target !== options.defaultChannelName ? matchesTarget(subdir) : false;
-                otherMatch = matchesOthers(subdir);
-                if(meMatch){
-                    cleanAndProtectAgainstCommon(pattern, abspath, rootdir, subdir, filename);
-                    grunt.verbose.writeln('match for ' + pattern.key + ' filename:' + filename );
-                    addToListIfNotExcluded(pattern, abspath);
-                } else if(otherMatch){
-                    grunt.verbose.writeln('negative match for ' + pattern.key + ' filename:' + filename);
-                } else {
-                    grunt.verbose.writeln('common file for filename:' + filename);
-                    addToListIfNotExcluded(pattern, abspath);
-                }
+        _.forEach(fileList, function(abspath){
+            fileParts = abspath.split(path.sep);
+            subdir = fileParts[fileParts.length - 2];
+            filename = _.last(fileParts);
+
+            grunt.verbose.subhead('New File');
+            grunt.verbose.writeln(['abspath',abspath]);
+            grunt.verbose.writeln(['subdir',subdir]);
+            grunt.verbose.writeln(['filename',filename]);
+
+            meMatch = target !== options.defaultChannelName ? matchesTarget(subdir) : false;
+            otherMatch = matchesOthers(subdir);
+            if(meMatch){
+                cleanAndProtectAgainstCommon(pattern, abspath, subdir, filename);
+                grunt.verbose.writeln('match for ' + pattern.key + ' filename:' + filename );
+                addToListIfNotExcluded(pattern, abspath);
+            } else if(otherMatch){
+                grunt.verbose.writeln('negative match for ' + pattern.key + ' filename:' + filename);
+            } else {
+                grunt.verbose.writeln('common file for filename:' + filename);
+                addToListIfNotExcluded(pattern, abspath);
             }
         });
+
     });
+    
 
     var outList = {};
 
