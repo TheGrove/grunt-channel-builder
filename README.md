@@ -24,19 +24,23 @@ In your project's Gruntfile, add a section named `channel_builder` to the data o
 
 ```js
 grunt.initConfig({
-  channel_builder: {
-    options: {
-      defaultChannelName: '',
-      filePatterns: {
-          js: '',
-          less: '',
-          tpl: ''
-      }
-    },
-    your_target: {
-      folderNamePattern: ''
+    channel_builder: {
+        options: {
+            defaultChannelName: '',
+            filePatterns: {
+                js: '',
+                less: '',
+                tpl: ''
+            }
+        },
+        your_target: {
+            replaceConfigValue: [{
+                existingConfigValueToReplace: '',
+                filePatternOfSourceList: ''
+            }]
+            folderNamePattern: ''
+        }
     }
-  }
 });
 ```
 
@@ -60,6 +64,22 @@ Default value: `{
 
 An object of the file patterns that will be collected for each channel. Each file type can be a string glob match pattern or an array of them.
 
+#### options.replaceConfigValues
+Type: `Array`
+Default value: '[]'
+
+An optional array of objects allowing channel_builder to automatically replace existing config values, like one already in your build process, with the results of the channel build for a specific channel and file pattern.
+
+#### options.replaceConfigValues[n].existingConfigValueToReplace
+Type: `String`
+
+An optional object that sets up a config change at the end of the individual channel task, this value is the name of the existing config value that will be replaced.
+
+#### options.replaceConfigValues[n].filePatternOfSourceList
+Type: `String`
+
+An optional object that sets up a config change at the end of the individual channel task, this value is the name of the file pattern whose list will replace the existing config value.
+
 #### channel.folderNamePattern
 Type: `String`
 
@@ -68,9 +88,10 @@ Each channel has a folder name pattern that will include or exclude files that m
 ### Usage Examples
 
 #### Setup
-Create any number of channels and give each one of them a folder name pattern. Keep your code structure how ever you want and by placing the file in a subfolder that has the channel's folder name pattern anywhere in the name (but seperated by a non-word character) it will be automatically added to the channel_builder config object ready to be fed into the grunt-contrib-concat task.
+Create any number of channels and give each one of them a folder name pattern. Keep your code structure how ever you want and by placing the file in a subfolder that has the channel's folder name pattern anywhere in the name (but seperated by a non-word character) it will be automatically added to the channel_builder config object ready to be fed into grunt-contrib-concat task or any other task.
 
 ```js
+ie_file_list: ['test/fixtures/**/*.js','!test/fixtures/**/*.spec.js'],
 channel_builder: {
   options: {
     filePatterns : {
@@ -80,6 +101,12 @@ channel_builder: {
     }
   },
   ireland: {
+      options: {
+          replaceConfigValues: [{
+            existingConfigValueToReplace: 'ie_file_list',
+            filePatternOfSourceList: 'js'
+          }]
+      },
       folderNamePattern: 'ie',
   },
   brazil: {
@@ -91,14 +118,21 @@ channel_builder: {
   default: {
       // put nothing in here
   }
-};
+}
 ```
 
 #### Result
 In this example, excecuting the task channel_builder adds an out property that can be called using grunt templates feeding into the concat task.
 
 ```js
-channel_builder {
+ie_file_list: [
+        "test/fixtures/coolness/br-ie/coolnessfile.js",
+        "test/fixtures/ie/mainfeature1.js",
+        "test/fixtures/mainfeature2.js",
+        "test/fixtures/wonder/awesome/ie/awesome.js",
+        "test/fixtures/wonder/wonderfile.js"
+      ],
+channel_builder: {
   "options": {
     "filePatterns": {
       "js": [
@@ -110,6 +144,14 @@ channel_builder {
     }
   },
   "ireland": {
+    "options": {
+      "replaceConfigValues": [
+        {
+          "existingConfigValueToReplace": "ie_file_list",
+          "filePatternOfSourceList": "js"
+        }
+      ]
+    },
     "folderNamePattern": "ie"
   },
   "brazil": {
@@ -193,7 +235,10 @@ channel_builder {
   }
 }
 ```
-So following the above example, you can use the template `<%= channel_builder.out.acme.js %>` to get a list of javascript files that are specific to the acme channel that you can feed into your other processes.
+So following the above example, you can use the template `<%= channel_builder.out.acme.js %>` to get a list of javascript files that are specific to the acme channel that you can feed into your other processes. In the case of the ireland channel we are replacing the `ie_files_list` config property with the output of Ireland channel's `js` file list, this replacement can be done on any channel and any file pattern.
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
+
+## Changelog
+[CHANGELOG.md](CHANGELOG.md)

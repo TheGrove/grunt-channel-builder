@@ -23,7 +23,8 @@ module.exports = function(grunt) {
             js: ['src/**/*.js','!src/**/*.spec.js'],
             less: 'src/**/*.less',
             tpl: 'src/**/*.tpl.html'
-      }
+      },
+      replaceConfigValues: []
     });
 
     // Turn non-arrays into arrays
@@ -61,7 +62,8 @@ module.exports = function(grunt) {
         fileParts,
         subdir,
         filename,
-        mainConfig = grunt.config('channel_builder');
+        mainConfig = grunt.config('channel_builder'),
+        replacementTargetFileName;
 
 
     grunt.verbose.subhead('Channel Builder Config');
@@ -203,6 +205,23 @@ module.exports = function(grunt) {
     });
     grunt.log.writeln(JSON.stringify(outList, null, '\t'));
     grunt.config.set('channel_builder.out.' + target, outList);
+
+    if(!_.isEmpty(options.replaceConfigValues)){
+        grunt.log.subhead('Processing Replacement Config Values');
+        _.forEach(options.replaceConfigValues, function(replacement){
+            if(_.isUndefined(replacement.existingConfigValueToReplace) || _.isUndefined(replacement.filePatternOfSourceList)){
+                grunt.log.error('Attributes existingConfigValueToReplace and filePatternOfSourceList are required to do config replacements');
+                return false;
+            }
+            grunt.verbose.subhead('New Replacement');
+            grunt.verbose.writeln('Existing value: ' + JSON.stringify(grunt.config.get(replacement.existingConfigValueToReplace),null,'\t'));
+            grunt.log.writeln('Changing ' + replacement.existingConfigValueToReplace);
+            replacementTargetFileName = 'channel_builder.out.' + target + '.' + replacement.filePatternOfSourceList;
+            grunt.log.writeln('New value will be the value of ' + replacementTargetFileName);
+            grunt.config.set(replacement.existingConfigValueToReplace, grunt.config.get(replacementTargetFileName));
+            grunt.verbose.writeln('New value: ' + JSON.stringify(grunt.config.get(replacement.existingConfigValueToReplace),null,'\t'));
+        });
+    }
   });
 
 };

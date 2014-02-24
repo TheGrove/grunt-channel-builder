@@ -31,16 +31,24 @@ module.exports = function(grunt) {
       tests: ['tmp'],
     },
 
+    ie_file_list: ['test/fixtures/**/*.js','!test/fixtures/**/*.spec.js'],
+
     // Configuration to be run (and then tested).
     channel_builder: {
       options: {
-        filePatterns : {
-            js: ['test/fixtures/**/*.js','!test/fixtures/**/*.spec.js'],
-            less: 'test/fixtures/**/*.less',
-            tpl: 'test/fixtures/**/*.tpl.html'
-        }
+          filePatterns : {
+              js: ['test/fixtures/**/*.js','!test/fixtures/**/*.spec.js'],
+              less: 'test/fixtures/**/*.less',
+              tpl: 'test/fixtures/**/*.tpl.html'
+          }
       },
       ireland: {
+        options: {
+          replaceConfigValues: [{
+            existingConfigValueToReplace: 'ie_file_list',
+            filePatternOfSourceList: 'js'
+          }]
+        },
         folderNamePattern: 'ie',
       },
       brazil: {
@@ -81,8 +89,6 @@ module.exports = function(grunt) {
   // Actually load this plugin's task(s).
   grunt.loadTasks('tasks');
 
-  
-
   // Whenever the "test" task is run, first clean the "tmp" dir, then run this
   // plugin's task(s), then test the result.
   grunt.registerTask('test', ['clean', 'channel_builder', 'nodeunit']);
@@ -93,7 +99,8 @@ module.exports = function(grunt) {
   grunt.registerTask('run', ['jshint', 'channel_builder', 'config-check']);
 
   grunt.registerTask('config-check','',function(){
-      grunt.log.writeln(' channel_builder ' + JSON.stringify(grunt.config.get('channel_builder'),null,'\t'));
+      grunt.log.writeln('channel_builder: ' + JSON.stringify(grunt.config.get('channel_builder'),null,'\t'));
+      grunt.log.writeln('ie_file_list: ' + JSON.stringify(grunt.config.get('ie_file_list'),null,'\t'));
   });
 
 };
