@@ -63,7 +63,64 @@ module.exports = function(grunt) {
         subdir,
         filename,
         mainConfig = grunt.config('channel_builder'),
-        replacementTargetFileName;
+        replacementTargetFileName,
+        normalizePatternList = function(patternList){
+            return _.map(patternList, function(pattern){
+                return pattern.abspath;
+            });
+        },
+        FileBits = function(abspath){
+            if(_.isUndefined(abspath) || _.isNull(abspath) || !_.isString(abspath)){
+                throw "abspath must be a defined and non-null string";
+            }
+            this.abspath = abspath;
+            this.fileParts = abspath.split(path.sep);
+            this.subdir = this.fileParts[this.fileParts.length - 2];
+            this.filename = _.last(this.fileParts);
+            this.pathWithoutSubDir = this.abspath.replace(path.sep + this.subdir,'');
+        },
+        PatternObj = function(key, patternArray){
+            this.key = key;
+            this.patternArray = patternArray;
+            this.list = [];
+            this.excludes = [];
+        },
+        OutList = function(patterns){
+            var outList = this;
+            _.forEach(patterns, function(pattern){
+                outList[pattern.key] = normalizePatternList(pattern.list);
+            });
+            var checkPattern = function(pattern, moduleName){
+                // Let's see if we have a file match for this
+                var matchedPattern = _.find(pattern.list, function(fileBits){
+                    grunt.verbose.writeln('checking match against: ' + fileBits.abspath);
+                    return moduleName === fileBits.abspath;
+                });
+                if(matchedPattern === undefined){
+                    grunt.verbose.writeln('No match found to pattern');
+                    // No match so we keep the name
+                    return moduleName;
+                } else {
+                    grunt.verbose.writeln('Match found to pattern!! : ' + matchedPattern.pathWithoutSubDir);
+                    // We match so we will give it the name of the file without the subdir
+                    return matchedPattern.pathWithoutSubDir;
+                }
+            };
+            this["replace"] = function(moduleName){
+                var newName;
+                _.forEach(patterns, function(pattern){
+                    grunt.verbose.writeln('Replace function for: ' + moduleName);
+                    var matchedPattern = checkPattern(pattern, moduleName);
+                    if(matchedPattern !== moduleName){
+                        newName = matchedPattern;
+                    }
+                });
+                return newName ? newName : moduleName;
+            };
+            
+        },
+        fileBits,
+        outList;
 
 
     grunt.verbose.subhead('Channel Builder Config');
@@ -128,32 +185,28 @@ module.exports = function(grunt) {
         }
     };
 
-    var cleanAndProtectAgainstCommon = function(pattern, abspath, subdir, filename){
+    var cleanAndProtectAgainstCommon = function(pattern, fileBits){
         
-        var commonFilePathPattern = abspath.replace(path.sep + subdir,'');
+        var commonFilePathPattern = fileBits.pathWithoutSubDir;
         // Remove the common file if we happen to already have it
-        pattern.list = _.filter(pattern.list,function(pattern){
-            return pattern !== commonFilePathPattern;
+        pattern.list = _.filter(pattern.list,function(fileBits){
+            return fileBits.abspath !== commonFilePathPattern;
         });
         grunt.verbose.writeln('Common file pattern to exclude : ' + commonFilePathPattern);
         // Create an exclusion for the common file so we wont pick it up
         pattern.excludes.push(commonFilePathPattern);
     };
 
-    var addToListIfNotExcluded = function(pattern, abspath){
+    var addToListIfNotExcluded = function(pattern, fileBits){
         grunt.verbose.writeln("addList pattern obj : " + JSON.stringify(pattern,null,'\t'));
-        if(_.indexOf(pattern.excludes, abspath) === NO_INDEX_FOUND){
-            pattern.list.push(abspath);
+        if(_.indexOf(pattern.excludes, fileBits.abspath) === NO_INDEX_FOUND){
+            pattern.list.push(fileBits);
         }
     };
 
     _.forIn(options.filePatterns,function(value,key){
-        var obj = {};
-        obj['key'] = key;
-        obj['patternArray'] = value;
-        obj['list'] = [];
-        obj['excludes'] = [];
-        patterns.push(obj);
+        var patt = new PatternObj(key, value);
+        patterns.push(patt);
     });
 
     grunt.verbose.subhead('Channels');
@@ -171,9 +224,10 @@ module.exports = function(grunt) {
         fileList = grunt.file.expand(pattern.patternArray);
 
         _.forEach(fileList, function(abspath){
-            fileParts = abspath.split(path.sep);
-            subdir = fileParts[fileParts.length - 2];
-            filename = _.last(fileParts);
+            fileBits = new FileBits(abspath);
+            fileParts = fileBits.fileParts;
+            subdir = fileBits.subdir;
+            filename = fileBits.filename;
 
             grunt.verbose.subhead('New File');
             grunt.verbose.writeln(['abspath',abspath]);
@@ -183,26 +237,21 @@ module.exports = function(grunt) {
             meMatch = target !== options.defaultChannelName ? matchesTarget(subdir) : false;
             otherMatch = matchesOthers(subdir);
             if(meMatch){
-                cleanAndProtectAgainstCommon(pattern, abspath, subdir, filename);
+                cleanAndProtectAgainstCommon(pattern, fileBits);
                 grunt.verbose.writeln('match for ' + pattern.key + ' filename:' + filename );
-                addToListIfNotExcluded(pattern, abspath);
+                addToListIfNotExcluded(pattern, fileBits);
             } else if(otherMatch){
                 grunt.verbose.writeln('negative match for ' + pattern.key + ' filename:' + filename);
             } else {
                 grunt.verbose.writeln('common file for filename:' + filename);
-                addToListIfNotExcluded(pattern, abspath);
+                addToListIfNotExcluded(pattern, fileBits);
             }
         });
 
     });
-    
-
-    var outList = {};
 
     grunt.log.subhead('Post processing list for : ' + this.target);
-    _.forEach(patterns, function(pattern){
-        outList[pattern.key] = pattern.list;
-    });
+    outList = new OutList(patterns);
     grunt.log.writeln(JSON.stringify(outList, null, '\t'));
     grunt.config.set('channel_builder.out.' + target, outList);
 
@@ -216,12 +265,13 @@ module.exports = function(grunt) {
             grunt.verbose.subhead('New Replacement');
             grunt.verbose.writeln('Existing value: ' + JSON.stringify(grunt.config.get(replacement.existingConfigValueToReplace),null,'\t'));
             grunt.log.writeln('Changing ' + replacement.existingConfigValueToReplace);
-            replacementTargetFileName = 'channel_builder.out.' + target + '.' + replacement.filePatternOfSourceList;
+            replacementTargetFileName = 'channel_builder.out.' + target + '.' + replacement.filePatternOfSourceList + '.list';
             grunt.log.writeln('New value will be the value of ' + replacementTargetFileName);
             grunt.config.set(replacement.existingConfigValueToReplace, grunt.config.get(replacementTargetFileName));
             grunt.verbose.writeln('New value: ' + JSON.stringify(grunt.config.get(replacement.existingConfigValueToReplace),null,'\t'));
         });
     }
+
   });
 
 };

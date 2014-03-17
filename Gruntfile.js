@@ -101,6 +101,9 @@ module.exports = function(grunt) {
   grunt.registerTask('config-check','',function(){
       grunt.log.writeln('channel_builder: ' + JSON.stringify(grunt.config.get('channel_builder'),null,'\t'));
       grunt.log.writeln('ie_file_list: ' + JSON.stringify(grunt.config.get('ie_file_list'),null,'\t'));
+      //
+      var replaceFunc = grunt.config.get('channel_builder.out.replace');
+      grunt.log.writeln('new name of "test/fixtures/ie/mainfeature1.tpl.html": ' + replaceFunc('test/fixtures/ie/mainfeature1.tpl.html'));
   });
 
 };
